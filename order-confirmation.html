@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation - Lj Silver Jewellery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Header & Navigation Styles */
+        .header {
+            background: #ffffff;
+            padding: 15px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-search {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #8e8e8e;
+            border: 3px solid #c0c0c0;
+            padding: 5px 12px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+
+        .logo:hover {
+            color: #333;
+            border-color: #333;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: #333;
+            cursor: pointer;
+            padding: 8px 12px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 0;
+            list-style: none;
+            flex: 1;
+        }
+
+        .nav a {
+            text-decoration: none;
+            color: #444;
+            font-weight: 600;
+            transition: 0.3s;
+            padding: 8px 16px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .nav a:hover {
+            color: #c0c0c0;
+            background: rgba(192, 192, 192, 0.1);
+        }
+
+        /* Footer Styles */
+        .footer {
+            background: #333;
+            color: white;
+            padding: 40px 8%;
+            margin-top: 60px;
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .footer-section {
+            text-align: center;
+        }
+
+        .footer-section h4 {
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .footer-section a {
+            color: #c0c0c0;
+            text-decoration: none;
+            margin: 0 10px;
+            transition: 0.3s;
+        }
+
+        .footer-section a:hover {
+            color: white;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #555;
+            color: #aaa;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .nav {
+                position: absolute;
+                top: 60px;
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                background: white;
+                border-top: 1px solid #ddd;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                display: none;
+                width: 100%;
+            }
+
+            .nav.active {
+                display: flex;
+            }
+
+            .nav a {
+                padding: 15px 20px;
+                border-radius: 0;
+                border-bottom: 1px solid #f0f0f0;
+            }
+
+            .logo-search {
+                justify-content: space-between;
+            }
+        }
+
+        .confirmation-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .confirmation-header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 2px solid #f0f0f0;
+            margin-bottom: 30px;
+        }
+
+        .success-icon {
+            font-size: 4rem;
+            color: #4CAF50;
+            margin-bottom: 15px;
+            animation: bounce 0.6s ease-in-out;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .confirmation-header h1 {
+            font-size: 2rem;
+            color: #333;
+            margin: 0 0 10px 0;
+        }
+
+        .confirmation-header p {
+            color: #666;
+            margin: 0;
+        }
+
+        .order-number {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+        }
+
+        .order-details {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .detail-value {
+            color: #666;
+        }
+
+        .order-items {
+            margin-bottom: 25px;
+        }
+
+        .order-items h3 {
+            color: #333;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background: white;
+            margin-bottom: 10px;
+            border-left: 3px solid #333;
+            padding-left: 15px;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+
+        .item-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .item-qty {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .item-price {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .price-summary {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 1rem;
+        }
+
+        .price-row.total {
+            border-top: 2px solid #333;
+            padding-top: 15px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .shipping-address {
+            background: white;
+            border: 2px solid #ddd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        .shipping-address h4 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .address-text {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 25px;
+        }
+
+        .info-box strong {
+            color: #1976D2;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 30px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #333;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #555;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #333;
+            border: 2px solid #333;
+        }
+
+        .btn-secondary:hover {
+            background: #f0f0f0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            background: #fff3cd;
+            color: #856404;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .confirmation-container {
+                margin: 20px;
+                padding: 20px;
+            }
+
+            .confirmation-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                text-align: center;
+            }
+
+            .detail-row {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .item {
+                flex-direction: column;
+                gap: 8px;
+            }
+        }
+
+        .thank-you-message {
+            background: #f0f0f0;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .thank-you-message p {
+            margin: 0;
+            color: #666;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with Navigation -->
+    <header class="header">
+        <div class="logo-search">
+            <div class="logo">
+                <i class="fa fa-ring"></i> LJ SILVER
+            </div>
+            <button class="menu-toggle" onclick="toggleMobileNav()">
+                <i class="fa fa-bars"></i>
+            </button>
+            <nav class="nav" id="mobileNav">
+                <a href="index.html">Home</a>
+                <a href="gallery.html">Gallery</a>
+                <a href="about.html">About</a>
+                <a href="contact.html">Contact</a>
+                <a href="cart.html"><i class="fa fa-shopping-cart"></i> Cart</a>
+                <a href="admin-login.html">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="confirmation-container">
+            <div class="confirmation-header">
+                <div class="success-icon">
+                    <i class="fa fa-check-circle"></i>
+                </div>
+                <h1>Order Confirmed!</h1>
+                <p>Thank you for your purchase</p>
+            </div>
+
+            <div id="orderContent">
+                <!-- Content will be loaded by JavaScript -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Lj Silver Jewellery</h4>
+                <p>Your trusted jewelry destination</p>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <p>Phone: +91 6350217120<br>Email: gupspbnnp@gmail.com</p>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <a href="#"><i class="fa fa-facebook"></i></a>
+                <a href="#"><i class="fa fa-twitter"></i></a>
+                <a href="#"><i class="fa fa-instagram"></i></a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2024 Lj Silver Jewellery. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMobileNav() {
+            const nav = document.getElementById('mobileNav');
+            nav.classList.toggle('active');
+        }
+
+        function displayOrderConfirmation() {
+            const order = JSON.parse(localStorage.getItem('lastOrder'));
+            const contentDiv = document.getElementById('orderContent');
+
+            if (!order) {
+                contentDiv.innerHTML = `
+                    <div class="info-box">
+                        <strong>No order found.</strong> <a href="gallery.html">Continue shopping</a>
+                    </div>
+                `;
+                return;
+            }
+
+            let itemsHtml = '';
+            order.items.forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                itemsHtml += `
+                    <div class="item">
+                        <div class="item-details">
+                            <div class="item-name">${item.name}</div>
+                            <div class="item-qty">Quantity: ${item.quantity}</div>
+                        </div>
+                        <div class="item-price">₹${itemTotal}</div>
+                    </div>
+                `;
+            });
+
+            let shippingHtml = '';
+            if (order.shippingAddress) {
+                const addr = order.shippingAddress;
+                shippingHtml = `
+                    <div class="shipping-address">
+                        <h4><i class="fa fa-map-marker"></i> Shipping Address</h4>
+                        <div class="address-text">
+                            ${addr.fullName}<br>
+                            ${addr.streetAddress}<br>
+                            ${addr.city}, ${addr.state} ${addr.postalCode}<br>
+                            ${addr.country}<br><br>
+                            <strong>Contact:</strong><br>
+                            Email: ${addr.email}<br>
+                            Phone: ${addr.phone}
+                        </div>
+                    </div>
+                `;
+            }
+
+            const html = `
+                <div class="order-number">
+                    <i class="fa fa-receipt"></i> Order #${order.id}
+                </div>
+
+                <div class="thank-you-message">
+                    <p>Your order has been successfully placed and will be sent to you via WhatsApp shortly with payment instructions and delivery details.</p>
+                </div>
+
+                <div class="order-details">
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fa fa-calendar"></i> Order Date</span>
+                        <span class="detail-value">${order.date}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fa fa-user"></i> Customer Name</span>
+                        <span class="detail-value">${order.customerName}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fa fa-envelope"></i> Email</span>
+                        <span class="detail-value">${order.customerEmail}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fa fa-phone"></i> Phone</span>
+                        <span class="detail-value">${order.customerPhone}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label"><i class="fa fa-info-circle"></i> Status</span>
+                        <span class="detail-value">
+                            <span class="status-badge">${order.status}</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="order-items">
+                    <h3><i class="fa fa-shopping-bag"></i> Order Items</h3>
+                    ${itemsHtml}
+                </div>
+
+                ${shippingHtml}
+
+                <div class="price-summary">
+                    <div class="price-row">
+                        <span>Subtotal:</span>
+                        <span>₹${order.subtotal}</span>
+                    </div>
+                    <div class="price-row">
+                        <span>Tax (5%):</span>
+                        <span>₹${order.tax}</span>
+                    </div>
+                    <div class="price-row total">
+                        <span>Total Amount:</span>
+                        <span>₹${order.totalAmount}</span>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    <strong><i class="fa fa-whatsapp"></i> Waiting for WhatsApp:</strong> A WhatsApp message with your order details has been sent to +91 6350217120. Please check your messages for payment instructions and delivery confirmation. Our team will get back to you shortly!
+                </div>
+
+                <div class="buttons">
+                    <a href="gallery.html" class="btn btn-primary">
+                        <i class="fa fa-shopping-bag"></i> Continue Shopping
+                    </a>
+                    <a href="index.html" class="btn btn-secondary">
+                        <i class="fa fa-home"></i> Back to Home
+                    </a>
+                </div>
+            `;
+
+            contentDiv.innerHTML = html;
+        }
+
+        // Load order confirmation on page load
+        window.addEventListener('load', displayOrderConfirmation);
+    </script>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rings (अंगूठी) - Lj Silver Jewellery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .header-title {
+            background: linear-gradient(135deg, #333, #555);
+            color: white;
+            padding: 40px 8%;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .container {
+            padding: 40px 8%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border: 1px solid #eee;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(192,192,192,0.3);
+            border-color: #c0c0c0;
+        }
+
+        .img-box {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(135deg, #e8e8e8, #d0d0d0);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-weight: bold;
+            font-size: 2rem;
+        }
+
+        .card h3 {
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .card p {
+            color: #666;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .price {
+            color: #c0c0c0;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .wa-btn {
+            display: inline-block;
+            background: #25D366;
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .wa-btn:hover {
+            background: #128C7E;
+            transform: scale(1.05);
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 30px;
+            padding: 10px 20px;
+            background: #f0f0f0;
+            color: #333;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="logo">LJ Silver</div>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="gallery.html">Gallery</a></li>
+            <li><a href="about.html">About</a></li>
+            <li><a href="contact.html">Contact</a></li>
+        </ul>
+    </nav>
+    <div style="font-size: 20px; cursor: pointer;">
+        <a href="cart.html" style="color: #444; text-decoration: none;">
+            <i class="fa fa-shopping-cart"></i>
+        </a>
+    </div>
+    <div class="category-dropdown">
+        <button onclick="toggleMenu()" class="toggle-btn">
+            <i class="fa fa-bars"></i> Categories
+        </button>
+        <div id="myDropdown" class="dropdown-content">
+            <a href="gallery.html">All Products</a>
+            <a href="gallery.html?category=rings">Rings (अंगूठी)</a>
+            <a href="gallery.html?category=bracelets">Bracelets (ब्रेसलेट)</a>
+            <a href="gallery.html?category=necklace">Necklace (हार)</a>
+            <a href="gallery.html?category=anklets">Anklets (पायल)</a>
+            <a href="gallery.html?category=toe-rings">Toe Rings (बिछिया)</a>
+        </div>
+    </div>
+</header>
+
+<div class="header-title">
+    <h1>Rings Collection (अंगूठी)</h1>
+    <p>Elegant Silver Rings for Every Occasion</p>
+</div>
+
+<div class="container">
+    <a href="gallery.html" class="back-btn"><i class="fa fa-arrow-left"></i> Back to Gallery</a>
+    
+    <div class="product-grid">
+        <div class="card">
+            <div class="img-box">💍</div>
+            <h3>Classic Silver Ring</h3>
+            <p>Sterling Silver .925</p>
+            <div class="price">₹1,499</div>
+            <a href="https://wa.me/916350217120?text=I'm interested in the Classic Silver Ring. Please provide details." target="_blank" class="wa-btn">
+                <i class="fa fa-whatsapp"></i> Order on WhatsApp
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="img-box">💎</div>
+            <h3>Diamond Stone Ring</h3>
+            <p>Sterling Silver with Diamond</p>
+            <div class="price">₹2,499</div>
+            <a href="https://wa.me/916350217120?text=I'm interested in the Diamond Stone Ring. Please provide details." target="_blank" class="wa-btn">
+                <i class="fa fa-whatsapp"></i> Order on WhatsApp
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="img-box">✨</div>
+            <h3>Pearl Ring</h3>
+            <p>Sterling Silver with Pearl</p>
+            <div class="price">₹1,999</div>
+            <a href="https://wa.me/916350217120?text=I'm interested in the Pearl Ring. Please provide details." target="_blank" class="wa-btn">
+                <i class="fa fa-whatsapp"></i> Order on WhatsApp
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="img-box">🌟</div>
+            <h3>Band Ring</h3>
+            <p>Sterling Silver Band</p>
+            <div class="price">₹1,299</div>
+            <a href="https://wa.me/916350217120?text=I'm interested in the Band Ring. Please provide details." target="_blank" class="wa-btn">
+                <i class="fa fa-whatsapp"></i> Order on WhatsApp
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="img-box">👑</div>
+            <h3>Royal Ring</h3>
+            <p>Sterling Silver Oxidized</p>
+            <div class="price">₹2,299</div>
+            <a href="https://wa.me/916350217120?text=I'm interested in the Royal Ring. Please provide details." target="_blank" class="wa-btn">
+                <i class="fa fa-whatsapp"></i> Order on WhatsApp
+            </a>
+        </div>
+
+        <div class="card">
+            <div class="img-box">🎨</div>
+            <h3>Custom Ring</h3>
+            <p>Design Your Own Ring</p>
+            <div class="price">₹3,000+</div>
+            <a href="https://wa.me/916350217120?text=I'm interested in a custom ring design. Can we discuss?" target="_blank" class="wa-btn">
+                <i class="fa fa-whatsapp"></i> Customize
+            </a>
+        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="footer-content">
+        <h2>Lj Silver Jewellery</h2>
+        <div class="contact-info">
+            <p><i class="fa fa-map-marker"></i> Pilibanga (भारत)</p>
+            <p><i class="fa fa-envelope"></i> Email: gupspbnnp@gmail.com</p>
+            <p><i class="fa fa-phone"></i> Mobile: +91 6350217120</p>
+        </div>
+        <div class="social-icons">
+            <a href="https://facebook.com/sunilsoni125" target="_blank">
+                <i class="fa fa-facebook"></i>
+            </a>
+            <a href="https://www.instagram.com/lakshmijweller" target="_blank">
+                <i class="fa fa-instagram"></i>
+            </a>
+            <a href="https://wa.me/916350217120" target="_blank">
+                <i class="fa fa-whatsapp"></i>
+            </a>
+        </div>
+        <div class="copyright">
+            © 2024 Lj Silver. Designed with ❤️ for Elegance.
+        </div>
+    </div>
+</footer>
+
+<a href="https://wa.me/916350217120?text=Hi! I'm interested in your silver jewelry." 
+   class="whatsapp-sticky" target="_blank" rel="noopener noreferrer" title="Chat on WhatsApp">
+    <i class="fa fa-whatsapp"></i>
+</a>
+
+<script>
+    function toggleMenu() {
+        document.getElementById('myDropdown').classList.toggle('show');
+    }
+
+    window.onclick = function(event) {
+        if (!event.target.matches('.toggle-btn') && !event.target.matches('.fa-bars')) {
+            const dropdown = document.getElementById('myDropdown');
+            if (dropdown.classList.contains('show')) {
+                dropdown.classList.remove('show');
+            }
+        }
+    }
+</script>
+
+</body>
+</html>

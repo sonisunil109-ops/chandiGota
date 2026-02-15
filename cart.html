@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - Lj Silver Jewellery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .cart-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        .cart-header {
+            background: linear-gradient(135deg, #333, #555);
+            color: white;
+            padding: 60px 8%;
+            text-align: center;
+        }
+        .cart-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .cart-container {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+            padding: 50px 8%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .cart-items {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            gap: 20px;
+        }
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-details {
+            flex: 1;
+        }
+        .item-name {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        .item-price {
+            color: #c0c0c0;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .quantity-btn {
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: 0.3s;
+        }
+        .quantity-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .remove-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .remove-btn:hover {
+            background: #ff5252;
+        }
+
+        .cart-summary {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 30px;
+            height: fit-content;
+            border: 1px solid #eee;
+        }
+
+        .summary-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            color: #666;
+        }
+        .summary-row.total {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            border-top: 2px solid #ddd;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 15px;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: 0.3s;
+        }
+        .checkout-btn:hover {
+            background: #c0c0c0;
+            color: #333;
+        }
+        .checkout-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+        .empty-cart i {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            color: #ddd;
+        }
+
+        .continue-shopping {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 25px;
+            background: #333;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .continue-shopping:hover {
+            background: #c0c0c0;
+            color: #333;
+        }
+
+        @media (max-width: 768px) {
+            .cart-container {
+                grid-template-columns: 1fr;
+            }
+            .cart-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header/Navigation -->
+    <header>
+        <div class="hamburger" onclick="toggleMobileNav()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="logo">LJ Silver</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="gallery.html">Gallery</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="cart-icon">
+            <a href="cart.html" style="color: #333; text-decoration: none;" class="active">
+                <i class="fa fa-shopping-cart"></i>
+            </a>
+        </div>
+        <div class="header-right">
+            <div class="category-dropdown">
+                <button onclick="toggleMenu()" class="toggle-btn">
+                    <i class="fa fa-bars"></i> Categories
+                </button>
+                <div id="categoryDropdown" class="dropdown-content">
+                    <a href="gallery.html">All Products</a>
+                    <a href="gallery.html">Rings</a>
+                    <a href="gallery.html">Bracelets</a>
+                    <a href="gallery.html">Necklace</a>
+                    <a href="gallery.html">Anklets</a>
+                    <a href="gallery.html">Toe Rings</a>
+                </div>
+            </div>
+        </div>
+        <nav class="nav-mobile" id="navMobile">
+            <a href="index.html">Home</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
+
+    <!-- Cart Header -->
+    <section class="cart-header">
+        <h1>Shopping Cart</h1>
+        <p>Review Your Selected Items</p>
+    </section>
+
+    <!-- Cart Content -->
+    <section class="cart-container">
+        <div class="cart-items" id="cartItems">
+            <div class="empty-cart">
+                <i class="fa fa-shopping-cart"></i>
+                <p>Your cart is empty</p>
+                <a href="gallery.html" class="continue-shopping">Continue Shopping</a>
+            </div>
+        </div>
+
+        <div class="cart-summary">
+            <div class="summary-title">Order Summary</div>
+            <div class="summary-row">
+                <span>Subtotal:</span>
+                <span id="subtotal">₹0</span>
+            </div>
+            <div class="summary-row">
+                <span>Shipping:</span>
+                <span id="shipping">Free</span>
+            </div>
+            <div class="summary-row">
+                <span>Tax:</span>
+                <span id="tax">₹0</span>
+            </div>
+            <div class="summary-row total">
+                <span>Total:</span>
+                <span id="total">₹0</span>
+            </div>
+            <button class="checkout-btn" id="checkoutBtn" onclick="checkout()" disabled>Proceed to Checkout</button>
+            <a href="gallery.html" class="continue-shopping" style="text-align: center; display: block; margin-top: 10px; margin-bottom: 0;">Continue Shopping</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <h2>Lj Silver Jewellery</h2>
+            <div class="contact-info">
+                <p><i class="fa fa-map-marker"></i> Pilibanga (भारत)</p>
+                <p><i class="fa fa-envelope"></i> Email: sonisunil109@gmail.com</p>
+                <p><i class="fa fa-phone"></i> Mobile: +91 6350217120</p>
+            </div>
+            <div class="social-icons">
+                <a href="https://facebook.com/sunilsoni125" target="_blank">
+                    <i class="fa fa-facebook"></i>
+                </a>
+                <a href="https://www.instagram.com/lakshmijweller" target="_blank">
+                    <i class="fa fa-instagram"></i>
+                </a>
+                <a href="https://wa.me/916350217120" target="_blank">
+                    <i class="fa fa-whatsapp"></i>
+                </a>
+            </div>
+            <div class="copyright">
+                © 2024 Lj Silver. Designed with ❤️ for Elegance.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function loadCart() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartItemsDiv = document.getElementById('cartItems');
+
+            if (cart.length === 0) {
+                cartItemsDiv.innerHTML = `
+                    <div class="empty-cart">
+                        <i class="fa fa-shopping-cart"></i>
+                        <p>Your cart is empty</p>
+                        <a href="gallery.html" class="continue-shopping">Continue Shopping</a>
+                    </div>
+                `;
+                document.getElementById('checkoutBtn').disabled = true;
+                return;
+            }
+
+            cartItemsDiv.innerHTML = cart.map((item, index) => `
+                <div class="cart-item">
+                    <div class="item-details">
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-price">₹${item.price}</div>
+                    </div>
+                    <div class="quantity-control">
+                        <button class="quantity-btn" onclick="updateQuantity(${index}, -1)">−</button>
+                        <span>${item.quantity}</span>
+                        <button class="quantity-btn" onclick="updateQuantity(${index}, 1)">+</button>
+                    </div>
+                    <div style="text-align: right; min-width: 80px;">
+                        <div style="color: #c0c0c0; font-weight: bold;">₹${item.price * item.quantity}</div>
+                        <button class="remove-btn" onclick="removeItem(${index})">Remove</button>
+                    </div>
+                </div>
+            `).join('');
+
+            updateSummary();
+            document.getElementById('checkoutBtn').disabled = false;
+        }
+
+        function updateQuantity(index, change) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart[index].quantity += change;
+
+            if (cart[index].quantity <= 0) {
+                removeItem(index);
+                return;
+            }
+
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart();
+        }
+
+        function removeItem(index) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            cart.splice(index, 1);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            loadCart();
+        }
+
+        function updateSummary() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const tax = Math.round(subtotal * 0.05); // 5% tax
+            const total = subtotal + tax;
+
+            document.getElementById('subtotal').textContent = '₹' + subtotal;
+            document.getElementById('tax').textContent = '₹' + tax;
+            document.getElementById('total').textContent = '₹' + total;
+        }
+
+        function checkout() {
+            const cart = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cart.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+
+            // Store cart for checkout page
+            localStorage.setItem('checkoutCart', JSON.stringify(cart));
+            
+            // Redirect to shipping address page
+            window.location.href = 'checkout-shipping.html';
+        }
+
+        function toggleMenu() {
+            const dropdown = document.getElementById('categoryDropdown');
+            dropdown.classList.toggle('show');
+        }
+
+        function toggleMobileNav() {
+            const navMobile = document.getElementById('navMobile');
+            const hamburger = document.querySelector('.hamburger');
+            navMobile.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        }
+
+        window.onclick = function(event) {
+            if (!event.target.matches('.toggle-btn') && !event.target.matches('.fa-bars')) {
+                const dropdown = document.getElementById('categoryDropdown');
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        }
+
+        // Load cart on page load
+        loadCart();
+    </script>
+</body>
+</html>

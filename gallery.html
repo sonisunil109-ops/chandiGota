@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Gallery - Lj Silver Jewellery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style.css">
+    <style>
+
+        .cart-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #333;
+            transition: color 0.3s ease;
+        }
+        .gallery-header {
+            background: linear-gradient(135deg, #333, #555);
+            color: white;
+            padding: 60px 8%;
+            text-align: center;
+        }
+        .gallery-header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .filter-section {
+            padding: 30px 8%;
+            background: #fafafa;
+            text-align: center;
+        }
+        .filter-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: white;
+            color: #333;
+            border: 2px solid #ddd;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: #333;
+            color: white;
+            border-color: #333;
+        }
+
+        .gallery-container {
+            padding: 50px 8%;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: visible;
+            transition: all 0.3s;
+            border: 1px solid #eee;
+            position: relative;
+        }
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 25px rgba(192,192,192,0.3);
+        }
+
+        .product-img {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(135deg, #e8e8e8, #d0d0d0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+            overflow: hidden;
+            cursor: zoom-in;
+            border-radius: 12px 12px 0 0;
+        }
+        .product-img:hover {
+            background: linear-gradient(135deg, #d0d0d0, #b0b0b0);
+        }
+        .product-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .zoom-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .product-img:hover .zoom-icon {
+            opacity: 1;
+        }
+
+        .cart-icon-corner {
+            position: absolute;
+            top: -15px;
+            right: 10px;
+            background: #333;
+            color: white;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 10;
+            border: 2px solid white;
+        }
+        .cart-icon-corner:hover {
+            background: #c0c0c0;
+            color: #333;
+            transform: scale(1.1);
+        }
+
+        .product-info {
+            padding: 20px;
+            text-align: center;
+        }
+        .product-name {
+            font-size: 1.2rem;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+        }
+        .product-category {
+            font-size: 0.85rem;
+            color: #888;
+            margin-bottom: 12px;
+        }
+        .product-price {
+            font-size: 1.3rem;
+            color: #c0c0c0;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        .buy-btn, .whatsapp-btn {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.95rem;
+        }
+        .buy-btn {
+            background: #333;
+            color: white;
+        }
+        .buy-btn:hover {
+            background: #c0c0c0;
+            color: #333;
+        }
+        .whatsapp-btn {
+            background: #25D366;
+            color: white;
+        }
+        .whatsapp-btn:hover {
+            background: #128C7E;
+            transform: scale(1.05);
+        }
+
+        /* Image Zoom Modal */
+        .zoom-modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            animation: fadeIn 0.3s;
+        }
+        .zoom-modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+        }
+        .zoom-modal-content {
+            position: relative;
+            max-width: 90vw;
+            max-height: 90vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .zoom-modal-content img {
+            max-width: 100%;
+            max-height: 85vh;
+            height: auto;
+            width: auto;
+            border-radius: 8px;
+            object-fit: contain;
+            cursor: zoom-in;
+            transition: transform 0.3s ease;
+        }
+
+        .zoom-modal-content img.zoomed {
+            cursor: zoom-out;
+            transform: scale(2);
+        }
+
+        /* Gallery carousel controls */
+        .gallery-prev, .gallery-next {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            z-index: 2010;
+        }
+        .gallery-prev:hover, .gallery-next:hover {
+            background: rgba(255, 255, 255, 0.6);
+        }
+        .gallery-prev {
+            left: 10px;
+        }
+        .gallery-next {
+            right: 10px;
+        }
+        .gallery-counter {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .image-count {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+
+        .close-zoom {
+            position: absolute;
+            top: -40px;
+            right: 0;
+            color: white;
+            font-size: 2rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .close-zoom:hover {
+            color: #c0c0c0;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .no-products {
+            text-align: center;
+            padding: 50px 20px;
+            color: #888;
+        }
+
+        /* Sticky WhatsApp */
+        .whatsapp-sticky {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #25D366;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            box-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+            z-index: 999;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        .whatsapp-sticky:hover {
+            transform: scale(1.1);
+            background-color: #128C7E;
+        }
+
+        @media (max-width: 768px) {
+            .gallery-header h1 { font-size: 1.8rem; }
+            .filter-buttons { gap: 10px; }
+            .filter-btn { padding: 8px 15px; font-size: 0.9rem; }
+            .product-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header/Navigation -->
+    <header>
+        <div class="hamburger" onclick="toggleMobileNav()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="logo">LJ Silver</div>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="gallery.html" class="active">Gallery</a></li>
+                <li><a href="about.html">About</a></li>
+                <li><a href="contact.html">Contact</a></li>
+            </ul>
+        </nav>
+        <div class="cart-icon">
+            <a href="cart.html" style="color: #333; text-decoration: none;">
+                <i class="fa fa-shopping-cart"></i>
+            </a>
+        </div>
+        <div class="header-right">
+            <div class="category-dropdown">
+                <button onclick="toggleMenu()" class="toggle-btn">
+                    <i class="fa fa-bars"></i> Categories
+                </button>
+                <div id="categoryDropdown" class="dropdown-content">
+                    <a href="#" onclick="filterProducts('all')">All Products</a>
+                    <a href="#" onclick="filterProducts('rings')">Rings (अंगूठी)</a>
+                    <a href="#" onclick="filterProducts('bracelets')">Bracelets (ब्रेसलेट)</a>
+                    <a href="#" onclick="filterProducts('necklace')">Necklace (हार)</a>
+                    <a href="#" onclick="filterProducts('anklets')">Anklets (पायल)</a>
+                    <a href="#" onclick="filterProducts('toe-rings')">Toe Rings (बिछिया)</a>
+                </div>
+            </div>
+        </div>
+        <nav class="nav-mobile" id="navMobile">
+            <a href="index.html">Home</a>
+            <a href="gallery.html">Gallery</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+        </nav>
+    </header>
+
+    <!-- Gallery Header -->
+    <section class="gallery-header">
+        <h1>Product Gallery</h1>
+        <p>Explore Our Exquisite Silver Jewellery Collection</p>
+    </section>
+
+    <!-- Filter Section -->
+    <section class="filter-section">
+        <div class="filter-buttons">
+            <button class="filter-btn active" onclick="filterProducts('all')">All Products</button>
+            <button class="filter-btn" onclick="filterProducts('rings')">Rings</button>
+            <button class="filter-btn" onclick="filterProducts('bracelets')">Bracelets</button>
+            <button class="filter-btn" onclick="filterProducts('necklace')">Necklace</button>
+            <button class="filter-btn" onclick="filterProducts('anklets')">Anklets</button>
+            <button class="filter-btn" onclick="filterProducts('toe-rings')">Toe Rings</button>
+        </div>
+    </section>
+
+    <!-- Products Gallery -->
+    <section class="gallery-container">
+        <div class="product-grid" id="productGrid">
+            <!-- Products will be loaded here by JavaScript -->
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <h2>Lj Silver Jewellery</h2>
+            <div class="contact-info">
+                <p><i class="fa fa-map-marker"></i> Pilibanga (भारत)</p>
+                <p><i class="fa fa-envelope"></i> Email: sonisunil109@gmail.com</p>
+                <p><i class="fa fa-phone"></i> Mobile: +91 6350217120</p>
+            </div>
+            <div class="social-icons">
+                <a href="https://facebook.com/sunilsoni125" target="_blank">
+                    <i class="fa fa-facebook"></i>
+                </a>
+                <a href="https://www.instagram.com/lakshmijweller" target="_blank">
+                    <i class="fa fa-instagram"></i>
+                </a>
+                <a href="https://wa.me/916350217120" target="_blank">
+                    <i class="fa fa-whatsapp"></i>
+                </a>
+            </div>
+            <div class="copyright">
+                © 2024 Lj Silver. Designed with ❤️ for Elegance.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Zoom Modal -->
+    <div id="zoomModal" class="zoom-modal">
+        <div class="zoom-modal-content">
+            <span class="close-zoom" onclick="closeZoom()">&times;</span>
+            <img id="zoomImage" src="" alt="Product Image">
+        </div>
+    </div>
+
+    <!-- Sticky WhatsApp -->
+    <a href="https://wa.me/916350217120?text=Hi! I'm interested in your silver jewelry." 
+       class="whatsapp-sticky" target="_blank" rel="noopener noreferrer">
+        <i class="fa fa-whatsapp"></i>
+    </a>
+
+    <script>
+        // Load products from localStorage or use defaults
+        const defaultProducts = [
+            { id: 1, name: "Classic Silver Ring", category: "rings", price: 1499, emoji: "💍", description: "Beautiful sterling silver ring", stock: 15 },
+            { id: 2, name: "Diamond Silver Ring", category: "rings", price: 2499, emoji: "💎", description: "Elegant diamond embedded ring", stock: 8 },
+            { id: 3, name: "Infinity Silver Chain", category: "necklace", price: 3200, emoji: "⛓️", description: "Premium silver chain necklace", stock: 10 },
+            { id: 4, name: "Pendant Necklace", category: "necklace", price: 2800, emoji: "🎀", description: "Stylish pendant necklace", stock: 12 },
+            { id: 5, name: "Sterling Silver Bracelet", category: "bracelets", price: 2100, emoji: "✨", description: "Classic silver bracelet", stock: 20 },
+            { id: 6, name: "Beaded Bracelet", category: "bracelets", price: 1899, emoji: "🔗", description: "Beaded design bracelet", stock: 14 },
+            { id: 7, name: "Traditional Payal", category: "anklets", price: 2500, emoji: "👣", description: "Traditional silver anklet", stock: 9 },
+            { id: 8, name: "Silver Payal Set", category: "anklets", price: 3500, emoji: "💫", description: "Pair of silver anklets", stock: 6 },
+            { id: 9, name: "Classic Toe Ring", category: "toe-rings", price: 599, emoji: "💍", description: "Simple silver toe ring", stock: 25 },
+            { id: 10, name: "Adjustable Toe Ring", category: "toe-rings", price: 799, emoji: "✨", description: "Adjustable toe ring", stock: 18 },
+        ];
+
+        let products = [];
+        try {
+            const stored = localStorage.getItem('products');
+            products = stored ? JSON.parse(stored) : defaultProducts;
+        } catch(e) {
+            products = defaultProducts;
+        }
+
+        let currentFilter = 'all';
+
+        function displayProducts(filter) {
+            const grid = document.getElementById('productGrid');
+            if (!grid) return;
+            
+            let filtered = filter === 'all' ? products : products.filter(p => p.category === filter);
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="no-products"><p>No products found in this category.</p></div>';
+                return;
+            }
+
+            let html = '';
+            filtered.forEach((product, idx) => {
+                // Get primary image - support both old (product.image) and new (product.images[]) formats
+                const primaryImage = product.images && product.images.length > 0 ? product.images[0] : (product.image || null);
+                const hasMultipleImages = product.images && product.images.length > 1;
+                const imageCount = product.images ? product.images.length : (product.image ? 1 : 0);
+                
+                html += `
+                <div class="product-card">
+                    <div class="product-img" data-product-id="${product.id}" data-image="${primaryImage || ''}" data-emoji="${product.emoji || ''}">
+                        ${primaryImage ? `<img src="${primaryImage}" alt="${product.name}">` : product.emoji}
+                        <div class="zoom-icon"><i class="fa fa-search-plus"></i></div>
+                        ${hasMultipleImages ? `<div class="image-count"><i class="fa fa-images"></i> ${imageCount}</div>` : ''}
+                    </div>
+                    <div class="cart-icon-corner" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}" title="Add to cart">
+                        <i class="fa fa-shopping-cart"></i>
+                    </div>
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-category">${product.category}</div>
+                        <div class="product-price">₹${product.price}</div>
+                        <div class="product-actions">
+                            <button class="buy-btn" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}">
+                                <i class="fa fa-shopping-bag"></i> Buy
+                            </button>
+                            <button class="whatsapp-btn" data-name="${product.name}" data-price="${product.price}">
+                                <i class="fa fa-whatsapp"></i> order now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+            
+            grid.innerHTML = html;
+
+            // Attach event listeners using event delegation
+            grid.addEventListener('click', function(e) {
+                // Zoom on image click
+                const productImg = e.target.closest('.product-img');
+                if (productImg && !e.target.closest('.cart-icon-corner')) {
+                    const productId = parseInt(productImg.dataset.productId);
+                    const product = products.find(p => p.id === productId);
+                    
+                    if (product && product.images && product.images.length > 0) {
+                        // Open gallery zoom with all images
+                        openImageGalleryZoom(product.images, product.name);
+                    } else {
+                        // Fallback for single image or emoji
+                        openZoom(productImg.dataset.image, productImg.dataset.emoji);
+                    }
+                    return;
+                }
+
+                const cartBtn = e.target.closest('.cart-icon-corner');
+                if (cartBtn) {
+                    addToCart(parseInt(cartBtn.dataset.id), cartBtn.dataset.name, parseInt(cartBtn.dataset.price));
+                    return;
+                }
+
+                const buyBtn = e.target.closest('.buy-btn');
+                if (buyBtn) {
+                    buyProduct(parseInt(buyBtn.dataset.id), buyBtn.dataset.name, parseInt(buyBtn.dataset.price));
+                    return;
+                }
+
+                const whatsappBtn = e.target.closest('.whatsapp-btn');
+                if (whatsappBtn) {
+                    buyOnWhatsApp(whatsappBtn.dataset.name, parseInt(whatsappBtn.dataset.price));
+                    return;
+                }
+            });
+        }
+
+        function filterProducts(category) {
+            currentFilter = category;
+            displayProducts(category);
+
+            // Update active button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+        }
+
+        function openZoom(imageUrl, emoji) {
+            const modal = document.getElementById('zoomModal');
+            const zoomImg = document.getElementById('zoomImage');
+            const content = modal.querySelector('.zoom-modal-content');
+            
+            // Clear emoji divs if any
+            const existingEmoji = content.querySelector('div[style*="font-size"]');
+            if (existingEmoji) existingEmoji.remove();
+            
+            if (imageUrl) {
+                zoomImg.style.display = 'block';
+                zoomImg.src = imageUrl;
+            } else {
+                zoomImg.style.display = 'none';
+                const emojiDiv = document.createElement('div');
+                emojiDiv.style.fontSize = '5rem';
+                emojiDiv.style.textAlign = 'center';
+                emojiDiv.textContent = emoji || '💍';
+                content.appendChild(emojiDiv);
+            }
+            
+            modal.classList.add('active');
+            initializeDoubleTapZoom();
+        }
+
+        function openImageGalleryZoom(images, productName) {
+            // Opens zoom modal for multiple product images
+            const modal = document.getElementById('zoomModal');
+            const zoomImg = document.getElementById('zoomImage');
+            const content = modal.querySelector('.zoom-modal-content');
+            
+            // Clear existing content
+            const existingEmoji = content.querySelector('div[style*="font-size"]');
+            if (existingEmoji) existingEmoji.remove();
+            
+            if (images && images.length > 0) {
+                // Display first image
+                zoomImg.style.display = 'block';
+                zoomImg.src = images[0];
+                
+                // If multiple images, add carousel controls
+                if (images.length > 1) {
+                    // Store images globally for carousel navigation
+                    window.galleryImages = images;
+                    window.currentImageIndex = 0;
+                    
+                    // Add carousel buttons if they don't exist
+                    let prevBtn = content.querySelector('.gallery-prev');
+                    let nextBtn = content.querySelector('.gallery-next');
+                    let counter = content.querySelector('.gallery-counter');
+                    
+                    if (!prevBtn) {
+                        prevBtn = document.createElement('button');
+                        prevBtn.className = 'gallery-prev';
+                        prevBtn.innerHTML = '<i class="fa fa-chevron-left"></i>';
+                        prevBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            navigateGallery(-1);
+                        };
+                        content.appendChild(prevBtn);
+                    }
+                    
+                    if (!nextBtn) {
+                        nextBtn = document.createElement('button');
+                        nextBtn.className = 'gallery-next';
+                        nextBtn.innerHTML = '<i class="fa fa-chevron-right"></i>';
+                        nextBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            navigateGallery(1);
+                        };
+                        content.appendChild(nextBtn);
+                    }
+                    
+                    if (!counter) {
+                        counter = document.createElement('div');
+                        counter.className = 'gallery-counter';
+                        counter.textContent = `1 / ${images.length}`;
+                        content.appendChild(counter);
+                    } else {
+                        counter.textContent = `1 / ${images.length}`;
+                    }
+                }
+            }
+            
+            modal.classList.add('active');
+            initializeDoubleTapZoom();
+        }
+
+        function navigateGallery(direction) {
+            if (!window.galleryImages) return;
+            
+            window.currentImageIndex += direction;
+            
+            // Wrap around
+            if (window.currentImageIndex < 0) {
+                window.currentImageIndex = window.galleryImages.length - 1;
+            } else if (window.currentImageIndex >= window.galleryImages.length) {
+                window.currentImageIndex = 0;
+            }
+            
+            // Update image
+            document.getElementById('zoomImage').src = window.galleryImages[window.currentImageIndex];
+            
+            // Update counter
+            const counter = document.querySelector('.gallery-counter');
+            if (counter) {
+                counter.textContent = `${window.currentImageIndex + 1} / ${window.galleryImages.length}`;
+            }
+        }
+
+        function closeZoom() {
+            document.getElementById('zoomModal').classList.remove('active');
+            // Reset zoom when closing
+            const zoomImage = document.getElementById('zoomImage');
+            if (zoomImage) {
+                zoomImage.classList.remove('zoomed');
+            }
+        }
+
+        function initializeDoubleTapZoom() {
+            const zoomImage = document.getElementById('zoomImage');
+            let lastTap = 0;
+            
+            if (zoomImage) {
+                zoomImage.addEventListener('touchend', function(e) {
+                    const currentTime = new Date().getTime();
+                    const tapLength = currentTime - lastTap;
+                    
+                    if (tapLength < 300 && tapLength > 0) {
+                        // Double tap detected
+                        e.preventDefault();
+                        zoomImage.classList.toggle('zoomed');
+                    }
+                    lastTap = currentTime;
+                });
+
+                // Also add click for desktop double-click
+                let clickCount = 0;
+                let clickTimer = null;
+                
+                zoomImage.addEventListener('click', function() {
+                    clickCount++;
+                    if (clickCount === 2) {
+                        zoomImage.classList.toggle('zoomed');
+                        clickCount = 0;
+                    }
+                    clearTimeout(clickTimer);
+                    clickTimer = setTimeout(() => {
+                        clickCount = 0;
+                    }, 300);
+                });
+            }
+        }
+
+        function buyProduct(productId, productName, price) {
+            addToCart(productId, productName, price);
+            setTimeout(() => {
+                window.location.href = 'cart.html';
+            }, 300);
+        }
+
+        function buyOnWhatsApp(productName, price) {
+            const message = `Hi! I'm interested in ${productName} priced at ₹${price}`;
+            const whatsappLink = `https://wa.me/916350217120?text=${encodeURIComponent(message)}`;
+            window.open(whatsappLink, '_blank');
+        }
+
+        function addToCart(productId, productName, price) {
+            let cart = JSON.parse(localStorage.getItem('cart')) || [];
+            const item = { id: productId, name: productName, price: price, quantity: 1 };
+            const existingItem = cart.find(p => p.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                cart.push(item);
+            }
+            
+            localStorage.setItem('cart', JSON.stringify(cart));
+            alert(productName + ' added to cart!');
+        }
+
+        function toggleMenu() {
+            document.getElementById('categoryDropdown').classList.toggle('show');
+        }
+
+        function toggleMobileNav() {
+            const navMobile = document.getElementById('navMobile');
+            const hamburger = document.querySelector('.hamburger');
+            navMobile.classList.toggle('active');
+            hamburger.classList.toggle('active');
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('zoomModal');
+            if (event.target === modal) {
+                closeZoom();
+            }
+            if (!event.target.matches('.toggle-btn') && !event.target.matches('.fa-bars')) {
+                const dropdown = document.getElementById('categoryDropdown');
+                if (dropdown.classList.contains('show')) {
+                    dropdown.classList.remove('show');
+                }
+            }
+        }
+
+        // Close zoom on Escape key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeZoom();
+            }
+        });
+
+        // Display all products on load
+        displayProducts('all');
+    </script>
+</body>
+</html>
