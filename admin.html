@@ -796,19 +796,25 @@
             if (products.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fa fa-cube"></i><p>No products found</p></td></tr>';
             } else {
-                tbody.innerHTML = products.map(product => `
-                    <tr>
-                        <td>${product.image ? '<img src="' + product.image + '" style="width: 40px; height: 40px; border-radius: 5px; object-fit: cover;">' : '<i class="fa fa-image" style="color: #ccc;"></i>'}</td>
-                        <td>${product.name}</td>
-                        <td>${product.category}</td>
-                        <td>₹${product.price}</td>
-                        <td>${product.stock}</td>
-                        <td>
-                            <button class="btn-action btn-edit" onclick="editProduct(${product.id})">Edit</button>
-                            <button class="btn-action btn-delete" onclick="deleteProduct(${product.id})">Delete</button>
-                        </td>
-                    </tr>
-                `).join('');
+                tbody.innerHTML = products.map(product => {
+                    // Support both old (product.image) and new (product.images[]) formats
+                    const primaryImage = (product.images && product.images.length > 0) ? product.images[0] : (product.image || null);
+                    const imageHtml = primaryImage ? `<img src="${primaryImage}" style="width: 40px; height: 40px; border-radius: 5px; object-fit: cover;" onerror="this.style.opacity=0.5">` : '<i class="fa fa-image" style="color: #ccc;"></i>';
+                    
+                    return `
+                        <tr>
+                            <td>${imageHtml}</td>
+                            <td>${product.name}</td>
+                            <td>${product.category}</td>
+                            <td>₹${product.price}</td>
+                            <td>${product.stock}</td>
+                            <td>
+                                <button class="btn-action btn-edit" onclick="editProduct(${product.id})">Edit</button>
+                                <button class="btn-action btn-delete" onclick="deleteProduct(${product.id})">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
             }
         }
 
@@ -901,10 +907,12 @@
         function openProductModal() {
             document.getElementById('productId').value = '';
             document.getElementById('productForm').reset();
+            // Clear uploaded images from previous session
             sessionStorage.removeItem('uploadedImages');
             document.getElementById('imageGallery').innerHTML = '';
             document.getElementById('modalTitle').textContent = 'Add Product';
             document.getElementById('productModal').classList.add('show');
+            console.log('Product modal opened - sessionStorage cleared');
         }
 
         function closeProductModal() {
@@ -919,6 +927,12 @@
 
             // Get images from sessionStorage (set by Cloudinary upload)
             const uploadedImages = JSON.parse(sessionStorage.getItem('uploadedImages')) || [];
+
+            // Validate that at least one image is provided for new products
+            if (!id && uploadedImages.length === 0) {
+                alert('Please upload at least one image before saving the product.');
+                return;
+            }
 
             const product = {
                 id: id ? parseInt(id) : Date.now(),
@@ -938,22 +952,35 @@
                 }
             }
 
+            // Log for debugging
+            console.log('Saving product with images:', product.images);
             saveProductToStorage(product, id, products);
         }
 
         function saveProductToStorage(product, id, products) {
             if (id) {
                 const index = products.findIndex(p => p.id === parseInt(id));
-                products[index] = product;
+                if (index > -1) {
+                    products[index] = product;
+                } else {
+                    products.push(product);
+                }
             } else {
                 products.push(product);
             }
 
+            // Save to localStorage
             localStorage.setItem('products', JSON.stringify(products));
+            
+            // Verify save
+            const verified = JSON.parse(localStorage.getItem('products'));
+            console.log('Product saved to localStorage. Total products:', verified.length);
+            console.log('Last saved product images count:', verified[verified.length - 1]?.images?.length || 0);
+            
             closeProductModal();
             loadProducts();
             loadDashboardStats();
-            alert('Product saved successfully!');
+            alert('Product saved successfully!\n\nUploaded ' + product.images.length + ' image(s)\nProduct will appear in gallery after page refresh.');
         }
 
         function editProduct(id) {
@@ -971,6 +998,7 @@
                 // Load existing images to sessionStorage
                 if (product.images && product.images.length > 0) {
                     sessionStorage.setItem('uploadedImages', JSON.stringify(product.images));
+                    console.log('Loaded existing images for edit:', product.images.length);
                 } else {
                     sessionStorage.removeItem('uploadedImages');
                 }
