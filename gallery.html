@@ -6,6 +6,9 @@
     <title>Product Gallery - Lj Silver Jewellery</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="style.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js"></script>
     <style>
 
         .cart-icon {
@@ -463,6 +466,21 @@
     </a>
 
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdUeX8etc9aNhsr1uHwdfbsgutcR1Yaec",
+            authDomain: "ljsilverj.firebaseapp.com",
+            projectId: "ljsilverj",
+            storageBucket: "ljsilverj.firebasestorage.app",
+            messagingSenderId: "21343936386",
+            appId: "1:21343936386:web:ba870e9787704c01bff99b",
+            databaseURL: "https://ljsilverj-default-rtdb.firebaseio.com"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         // Load products from localStorage or use defaults
         const defaultProducts = [
             { id: 1, name: "Classic Silver Ring", category: "rings", price: 1499, emoji: "💍", description: "Beautiful sterling silver ring", stock: 15 },
@@ -478,12 +496,45 @@
         ];
 
         let products = [];
-        try {
-            const stored = localStorage.getItem('products');
-            products = stored ? JSON.parse(stored) : defaultProducts;
-        } catch(e) {
-            products = defaultProducts;
+        let isFirebaseReady = false;
+
+        // Load products from Firebase
+        function loadProductsFromFirebase() {
+            db.ref('products').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const firebaseProducts = snapshot.val();
+                    // Convert object to array if needed
+                    if (Array.isArray(firebaseProducts)) {
+                        products = firebaseProducts;
+                    } else {
+                        products = Object.values(firebaseProducts);
+                    }
+                    console.log('✅ Loaded ' + products.length + ' products from Firebase');
+                    displayProducts(currentFilter);
+                } else {
+                    console.log('No products in Firebase, using defaults');
+                    products = defaultProducts;
+                    displayProducts(currentFilter);
+                }
+                isFirebaseReady = true;
+            }, (error) => {
+                console.log('Firebase error:', error.message);
+                console.log('Using localStorage fallback');
+                try {
+                    const stored = localStorage.getItem('products');
+                    products = stored ? JSON.parse(stored) : defaultProducts;
+                } catch(e) {
+                    products = defaultProducts;
+                }
+                isFirebaseReady = true;
+                displayProducts(currentFilter);
+            });
         }
+
+        // Initialize on page load
+        window.addEventListener('load', () => {
+            loadProductsFromFirebase();
+        });
 
         let currentFilter = 'all';
 

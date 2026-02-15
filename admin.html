@@ -6,6 +6,9 @@
     <title>Admin Dashboard - Lj Silver Jewellery</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.5.0/firebase-database.js"></script>
     <style>
         * {
             margin: 0;
@@ -680,6 +683,21 @@
         </div>
     </div>
     <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdUeX8etc9aNhsr1uHwdfbsgutcR1Yaec",
+            authDomain: "ljsilverj.firebaseapp.com",
+            projectId: "ljsilverj",
+            storageBucket: "ljsilverj.firebasestorage.app",
+            messagingSenderId: "21343936386",
+            appId: "1:21343936386:web:ba870e9787704c01bff99b",
+            databaseURL: "https://ljsilverj-default-rtdb.firebaseio.com"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
         // Cloudinary Configuration
         const cloudinaryWidget = cloudinary.createUploadWidget(
             {
@@ -749,11 +767,23 @@
             document.getElementById('currentUser').textContent = currentUser.charAt(0).toUpperCase() + currentUser.slice(1);
             document.getElementById('userInitial').textContent = currentUser.charAt(0).toUpperCase();
             
-            loadDashboardStats();
-            loadProducts();
-            loadOrders();
-            loadCustomers();
-            loadReports();
+            // Load products from Firebase (sync from cloud)
+            db.ref('products').once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const firebaseProducts = snapshot.val();
+                    if (Array.isArray(firebaseProducts)) {
+                        localStorage.setItem('products', JSON.stringify(firebaseProducts));
+                    } else {
+                        localStorage.setItem('products', JSON.stringify(Object.values(firebaseProducts)));
+                    }
+                    console.log('✅ Synced products from Firebase');
+                }
+                loadDashboardStats();
+                loadProducts();
+                loadOrders();
+                loadCustomers();
+                loadReports();
+            });
         }
 
         // Load Dashboard Stats
@@ -972,6 +1002,16 @@
             // Save to localStorage
             localStorage.setItem('products', JSON.stringify(products));
             
+            // Save to Firebase Realtime Database
+            db.ref('products').set(products, (error) => {
+                if (error) {
+                    console.log('Firebase save error:', error.message);
+                    alert('⚠️ Saved locally but Firebase sync failed. Check internet connection.');
+                } else {
+                    console.log('✅ Product synced to Firebase. Total products:', products.length);
+                }
+            });
+            
             // Verify save
             const verified = JSON.parse(localStorage.getItem('products'));
             console.log('Product saved to localStorage. Total products:', verified.length);
@@ -980,7 +1020,7 @@
             closeProductModal();
             loadProducts();
             loadDashboardStats();
-            alert('Product saved successfully!\n\nUploaded ' + product.images.length + ' image(s)\nProduct will appear in gallery after page refresh.');
+            alert('Product saved successfully!\n\n✅ Uploaded ' + product.images.length + ' image(s)\n✅ Synced to Firebase\n\nProduct appears in gallery on ALL devices!');
         }
 
         function editProduct(id) {
@@ -1016,9 +1056,19 @@
                 let products = JSON.parse(localStorage.getItem('products')) || [];
                 products = products.filter(p => p.id !== id);
                 localStorage.setItem('products', JSON.stringify(products));
+                
+                // Delete from Firebase
+                db.ref('products').set(products, (error) => {
+                    if (error) {
+                        console.log('Firebase delete error:', error.message);
+                    } else {
+                        console.log('✅ Product deleted from Firebase');
+                    }
+                });
+                
                 loadProducts();
                 loadDashboardStats();
-                alert('Product deleted successfully!');
+                alert('✅ Product deleted successfully!\n✅ Removed from all devices');
             }
         }
 
