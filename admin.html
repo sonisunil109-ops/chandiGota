@@ -1002,13 +1002,13 @@
             // Save to localStorage
             localStorage.setItem('products', JSON.stringify(products));
             
-            // Save to Firebase Realtime Database
-            db.ref('products').set(products, (error) => {
+            // Save single product to Firebase Realtime Database (avoid overwriting whole list)
+            db.ref('products/' + product.id).set(product, (error) => {
                 if (error) {
                     console.log('Firebase save error:', error.message);
                     alert('⚠️ Saved locally but Firebase sync failed. Check internet connection.');
                 } else {
-                    console.log('✅ Product synced to Firebase. Total products:', products.length);
+                    console.log('✅ Product synced to Firebase:', product.id);
                 }
             });
             
@@ -1057,12 +1057,13 @@
                 products = products.filter(p => p.id !== id);
                 localStorage.setItem('products', JSON.stringify(products));
                 
-                // Delete from Firebase
-                db.ref('products').set(products, (error) => {
+                // Delete single product from Firebase
+                db.ref('products/' + id).remove((error) => {
                     if (error) {
                         console.log('Firebase delete error:', error.message);
+                        alert('⚠️ Deleted locally but failed to remove from Firebase.');
                     } else {
-                        console.log('✅ Product deleted from Firebase');
+                        console.log('✅ Product deleted from Firebase:', id);
                     }
                 });
                 
