@@ -839,8 +839,8 @@
                             <td>₹${product.price}</td>
                             <td>${product.stock}</td>
                             <td>
-                                <button class="btn-action btn-edit" onclick="editProduct(${product.id})">Edit</button>
-                                <button class="btn-action btn-delete" onclick="deleteProduct(${product.id})">Delete</button>
+                                <button class="btn-action btn-edit" onclick="editProduct('${product.id}')">Edit</button>
+                                <button class="btn-action btn-delete" onclick="deleteProduct('${product.id}')">Delete</button>
                             </td>
                         </tr>
                     `;
@@ -965,7 +965,8 @@
             }
 
             const product = {
-                id: id ? parseInt(id) : Date.now(),
+                // Use string IDs. New products will get a Firebase-generated key when pushed.
+                id: id ? id : null,
                 name: document.getElementById('productName').value,
                 category: document.getElementById('productCategory').value,
                 price: parseInt(document.getElementById('productPrice').value),
@@ -976,7 +977,7 @@
 
             // Keep existing images if no new images uploaded
             if (id && uploadedImages.length === 0) {
-                const existingProduct = products.find(p => p.id === parseInt(id));
+                const existingProduct = products.find(p => p.id === id);
                 if (existingProduct && existingProduct.images) {
                     product.images = existingProduct.images;
                 }
@@ -988,29 +989,43 @@
         }
 
         function saveProductToStorage(product, id, products) {
-            if (id) {
-                const index = products.findIndex(p => p.id === parseInt(id));
+            // If product has an ID, update existing entry; otherwise push a new key from Firebase
+            if (product.id) {
+                const index = products.findIndex(p => p.id === product.id);
                 if (index > -1) {
                     products[index] = product;
                 } else {
                     products.push(product);
                 }
+
+                // Update single product in Firebase
+                db.ref('products/' + product.id).set(product, (error) => {
+                    if (error) {
+                        console.log('Firebase save error:', error.message);
+                        alert('⚠️ Saved locally but Firebase sync failed. Check internet connection.');
+                    } else {
+                        console.log('✅ Product synced to Firebase:', product.id);
+                    }
+                });
             } else {
+                // Create new product with Firebase-generated key
+                const newRef = db.ref('products').push();
+                product.id = newRef.key;
                 products.push(product);
+
+                // Save new product to Firebase
+                newRef.set(product, (error) => {
+                    if (error) {
+                        console.log('Firebase push error:', error.message);
+                        alert('⚠️ Saved locally but Firebase sync failed.');
+                    } else {
+                        console.log('✅ New product pushed to Firebase:', product.id);
+                    }
+                });
             }
 
             // Save to localStorage
             localStorage.setItem('products', JSON.stringify(products));
-            
-            // Save single product to Firebase Realtime Database (avoid overwriting whole list)
-            db.ref('products/' + product.id).set(product, (error) => {
-                if (error) {
-                    console.log('Firebase save error:', error.message);
-                    alert('⚠️ Saved locally but Firebase sync failed. Check internet connection.');
-                } else {
-                    console.log('✅ Product synced to Firebase:', product.id);
-                }
-            });
             
             // Verify save
             const verified = JSON.parse(localStorage.getItem('products'));

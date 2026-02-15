@@ -590,7 +590,7 @@
                 // Zoom on image click
                 const productImg = e.target.closest('.product-img');
                 if (productImg && !e.target.closest('.cart-icon-corner')) {
-                    const productId = parseInt(productImg.dataset.productId);
+                    const productId = productImg.dataset.productId;
                     const product = products.find(p => p.id === productId);
                     
                     if (product && product.images && product.images.length > 0) {
@@ -605,13 +605,13 @@
 
                 const cartBtn = e.target.closest('.cart-icon-corner');
                 if (cartBtn) {
-                    addToCart(parseInt(cartBtn.dataset.id), cartBtn.dataset.name, parseInt(cartBtn.dataset.price));
+                    addToCart(cartBtn.dataset.id, cartBtn.dataset.name, parseInt(cartBtn.dataset.price));
                     return;
                 }
 
                 const buyBtn = e.target.closest('.buy-btn');
                 if (buyBtn) {
-                    buyProduct(parseInt(buyBtn.dataset.id), buyBtn.dataset.name, parseInt(buyBtn.dataset.price));
+                    buyProduct(buyBtn.dataset.id, buyBtn.dataset.name, parseInt(buyBtn.dataset.price));
                     return;
                 }
 
