@@ -764,7 +764,8 @@
         // Initialize Dashboard
         function initializeDashboard() {
             const currentUser = localStorage.getItem('currentAdmin') || 'Admin';
-            document.getElementById('currentUser').textContent = currentUser.charAt(0).toUpperCase() + currentUser.slice(1);
+            const displayName = currentUser.includes('@') ? currentUser.split('@')[0] : currentUser;
+            document.getElementById('currentUser').textContent = displayName.charAt(0).toUpperCase() + displayName.slice(1);
             document.getElementById('userInitial').textContent = currentUser.charAt(0).toUpperCase();
             
             // Load products from Firebase (sync from cloud)
