@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Lj Silver Jewellery</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
+    <!-- Firebase SDK (Compat version for HTML) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f5f5f5;
+        }
+
+        .container-admin {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 20px 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+            color: #c0c0c0;
+        }
+
+        .sidebar-header p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin: 0;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            color: #bdc3c7;
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        .sidebar-menu a:hover,
+        .sidebar-menu a.active {
+            background: rgba(255, 255, 255, 0.1);
+            color: #c0c0c0;
+            border-left-color: #c0c0c0;
+        }
+
+        .sidebar-menu i {
+            width: 25px;
+            margin-right: 15px;
+            text-align: center;
+        }
+
+        .sidebar-footer {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            padding: 0 20px;
+        }
+
+        .logout-btn {
+            width: 100%;
+            padding: 12px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #c0392b;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 250px;
+            flex: 1;
+            padding: 30px;
+        }
+
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-header h1 {
+            color: #2c3e50;
+            font-size: 1.8rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-card-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .stat-card h3 {
+            color: #2c3e50;
+            font-size: 1.1rem;
+            margin-bottom: 8px;
+        }
+
+        .stat-card-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-card-label {
+            color: #7f8c8d;
+            font-size: 0.9rem;
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        .section-header {
+            margin-bottom: 25px;
+        }
+
+        .section-header h2 {
+            color: #2c3e50;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        /* Buttons */
+        .btn-primary {
+            background: #667eea;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+
+        /* Table */
+        .data-table {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .data-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .data-table th {
+            background: #2c3e50;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        .data-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .data-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .modal-header h2 {
+            color: #2c3e50;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #7f8c8d;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-family: 'Arial', sans-serif;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .btn-action {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            margin-right: 5px;
+        }
+
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #2980b9;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+        }
+
+        .btn-save {
+            background: #27ae60;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+        }
+
+        .btn-save:hover {
+            background: #229954;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: #7f8c8d;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            opacity: 0.3;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                margin-bottom: 20px;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .top-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .data-table {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-admin">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <h2>Lj Silver</h2>
+                <p>Admin Panel</p>
+            </div>
+
+            <ul class="sidebar-menu">
+                <li><a href="#" onclick="showSection('dashboard')" class="nav-link active">
+                    <i class="fa fa-home"></i> Dashboard
+                </a></li>
+                <li><a href="#" onclick="showSection('products')" class="nav-link">
+                    <i class="fa fa-cube"></i> Products
+                </a></li>
+                <li><a href="#" onclick="showSection('orders')" class="nav-link">
+                    <i class="fa fa-shopping-cart"></i> Orders
+                </a></li>
+                <li><a href="#" onclick="showSection('customers')" class="nav-link">
+                    <i class="fa fa-users"></i> Customers
+                </a></li>
+                <li><a href="#" onclick="showSection('reports')" class="nav-link">
+                    <i class="fa fa-bar-chart"></i> Reports
+                </a></li>
+            </ul>
+
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="handleLogout()">
+                    <i class="fa fa-sign-out"></i> Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-header">
+                <div>
+                    <h1 id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="user-info">
+                    <div class="user-avatar" id="userInitial">A</div>
+                    <div>
+                        <p id="currentUser">Admin</p>
+                        <small id="loginTime">Just now</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dashboard Section -->
+            <div id="dashboard" class="content-section active">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-card-icon">📦</div>
+                        <h3>Total Products</h3>
+                        <div class="stat-card-value" id="totalProducts">0</div>
+                        <div class="stat-card-label">In Inventory</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon">🛒</div>
+                        <h3>Total Orders</h3>
+                        <div class="stat-card-value" id="totalOrders">0</div>
+                        <div class="stat-card-label">All time</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon">👥</div>
+                        <h3>Total Customers</h3>
+                        <div class="stat-card-value" id="totalCustomers">0</div>
+                        <div class="stat-card-label">Registered</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-card-icon">💰</div>
+                        <h3>Total Revenue</h3>
+                        <div class="stat-card-value" id="totalRevenue">₹0</div>
+                        <div class="stat-card-label">This month</div>
+                    </div>
+                </div>
+
+                <div class="section-header">
+                    <h2>Recent Orders</h2>
+                </div>
+                <div class="data-table" id="recentOrdersTable">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentOrdersBody">
+                            <tr>
+                                <td colspan="5" class="empty-state">
+                                    <i class="fa fa-inbox"></i>
+                                    <p>No orders yet</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Products Section -->
+            <div id="products" class="content-section">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>Products Management</h2>
+                    <button class="btn-primary" onclick="openProductModal()">
+                        <i class="fa fa-plus"></i> Add Product
+                    </button>
+                </div>
+
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Product Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Stock</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsBody">
+                        </tbody>
+                    </table>                    cd "g:\visual studio code\web development bootcamp\ljsilver"
+                    git status
+                    git add .
+                    git commit -m "Update with Cloudinary integration"
+                    git push -u origin main
+                </div>
+            </div>
+
+            <!-- Orders Section -->
+            <div id="orders" class="content-section">
+                <h2>Orders Management</h2>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Products</th>
+                                <th>Total Amount</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersBody">
+                            <tr>
+                                <td colspan="6" class="empty-state">
+                                    <i class="fa fa-shopping-cart"></i>
+                                    <p>No orders found</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Customers Section -->
+            <div id="customers" class="content-section">
+                <h2>Customers Management</h2>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Orders</th>
+                                <th>Total Spent</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customersBody">
+                            <tr>
+                                <td colspan="5" class="empty-state">
+                                    <i class="fa fa-users"></i>
+                                    <p>No customers yet</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Reports Section -->
+            <div id="reports" class="content-section">
+                <h2>Sales Reports</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Monthly Revenue</h3>
+                        <div class="stat-card-value" id="monthlyRevenue">₹0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Monthly Orders</h3>
+                        <div class="stat-card-value" id="monthlyOrders">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Average Order Value</h3>
+                        <div class="stat-card-value" id="averageOrder">₹0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Top Product</h3>
+                        <div class="stat-card-value" id="topProduct">-</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Product</h2>
+                <button class="btn-close" onclick="closeProductModal()">×</button>
+            </div>
+            <form id="productForm" onsubmit="saveProduct(event)">
+                <input type="hidden" id="productId">
+                <div class="form-group">
+                    <label>Product Name</label>
+                    <input type="text" id="productName" required>
+                </div>
+                <div class="form-group">
+                    <label>Category</label>
+                    <select id="productCategory" required>
+                        <option>rings</option>
+                        <option>bracelets</option>
+                        <option>necklace</option>
+                        <option>anklets</option>
+                        <option>toe-rings</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Price (₹)</label>
+                    <input type="number" id="productPrice" required>
+                </div>
+                <div class="form-group">
+                    <label>Stock</label>
+                    <input type="number" id="productStock" required>
+                </div>
+                <div class="form-group">
+                    <label>Description</label>
+                    <textarea id="productDescription"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Product Images (Multiple)</label>
+                    <button type="button" class="btn-save" id="cloudinaryUploadBtn" style="width: 100%; margin-bottom: 10px;">Upload Images to Cloudinary</button>
+                    <small style="color: #666; display: block; margin-bottom: 8px;">Click above to upload product images</small>
+                    <div id="imageGallery" style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px;"></div>
+                </div>
+                <button type="submit" class="btn-save">Save Product</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdUeX8etc9aNhsr1uHwdfbsgutcR1Yaec",
+            authDomain: "ljsilverj.firebaseapp.com",
+            projectId: "ljsilverj",
+            storageBucket: "ljsilverj.firebasestorage.app",
+            messagingSenderId: "21343936386",
+            appId: "1:21343936386:web:ba870e9787704c01bff99b",
+            databaseURL: "https://ljsilverj-default-rtdb.firebaseio.com"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+
+        // Cloudinary Configuration
+        const cloudinaryWidget = cloudinary.createUploadWidget(
+            {
+                cloudName: 'dvpsuamzs',
+                uploadPreset: 'ljsilverj', // You can create presets in Cloudinary dashboard
+                multiple: true,
+                folder: 'ljsilver-jewelry',
+                resourceType: 'auto'
+            },
+            (error, result) => {
+                if (!error && result && result.event === "success") {
+                    // Add uploaded image URL
+                    let uploadedImages = JSON.parse(sessionStorage.getItem('uploadedImages')) || [];
+                    uploadedImages.push(result.info.secure_url);
+                    sessionStorage.setItem('uploadedImages', JSON.stringify(uploadedImages));
+                    
+                    // Display in gallery
+                    const imageGallery = document.getElementById('imageGallery');
+                    const imgElement = document.createElement('div');
+                    imgElement.style.cssText = 'position: relative; width: 80px; height: 80px;';
+                    imgElement.innerHTML = `
+                        <img src="${result.info.secure_url}" style="width: 100%; height: 100%; border-radius: 5px; object-fit: cover;" />
+                        <button type="button" onclick="removeImage('${result.info.secure_url}')" style="position: absolute; top: -8px; right: -8px; background: red; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; padding: 0; line-height: 1;">×</button>
+                    `;
+                    imageGallery.appendChild(imgElement);
+                }
+            }
+        );
+
+        function removeImage(url) {
+            let uploadedImages = JSON.parse(sessionStorage.getItem('uploadedImages')) || [];
+            uploadedImages = uploadedImages.filter(img => img !== url);
+            sessionStorage.setItem('uploadedImages', JSON.stringify(uploadedImages));
+            
+            // Refresh gallery
+            displayImageGallery();
+        }
+
+        function displayImageGallery() {
+            const imageGallery = document.getElementById('imageGallery');
+            imageGallery.innerHTML = '';
+            let uploadedImages = JSON.parse(sessionStorage.getItem('uploadedImages')) || [];
+            
+            uploadedImages.forEach(url => {
+                const imgElement = document.createElement('div');
+                imgElement.style.cssText = 'position: relative; width: 80px; height: 80px;';
+                imgElement.innerHTML = `
+                    <img src="${url}" style="width: 100%; height: 100%; border-radius: 5px; object-fit: cover;" />
+                    <button type="button" onclick="removeImage('${url}')" style="position: absolute; top: -8px; right: -8px; background: red; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; padding: 0; line-height: 1;">×</button>
+                `;
+                imageGallery.appendChild(imgElement);
+            });
+        }
+
+        // Check authentication
+        function checkAuth() {
+            auth.onAuthStateChanged((user) => {
+                if (user) {
+                    initializeDashboard();
+                } else {
+                    window.location.href = 'admin-login.html';
+                }
+            });
+        }
+
+        // Initialize Dashboard
+        function initializeDashboard() {
+            const currentUser = localStorage.getItem('currentAdmin') || 'Admin';
+            const displayName = currentUser.includes('@') ? currentUser.split('@')[0] : currentUser;
+            document.getElementById('currentUser').textContent = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+            document.getElementById('userInitial').textContent = currentUser.charAt(0).toUpperCase();
+            
+            // Load products from Firebase (sync from cloud)
+            db.ref('products').once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const firebaseProducts = snapshot.val();
+                    if (Array.isArray(firebaseProducts)) {
+                        localStorage.setItem('products', JSON.stringify(firebaseProducts));
+                    } else {
+                        localStorage.setItem('products', JSON.stringify(Object.values(firebaseProducts)));
+                    }
+                    console.log('✅ Synced products from Firebase');
+                }
+                loadDashboardStats();
+                loadProducts();
+                loadOrders();
+                loadCustomers();
+                loadReports();
+            });
+        }
+
+        // Load Dashboard Stats
+        function loadDashboardStats() {
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const customers = JSON.parse(localStorage.getItem('customers')) || [];
+
+            document.getElementById('totalProducts').textContent = products.length;
+            document.getElementById('totalOrders').textContent = orders.length;
+            document.getElementById('totalCustomers').textContent = customers.length;
+
+            const totalRevenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+            document.getElementById('totalRevenue').textContent = '₹' + totalRevenue.toLocaleString();
+
+            // Load recent orders
+            const recentOrders = orders.slice(-5).reverse();
+            const tbody = document.getElementById('recentOrdersBody');
+            
+            if (recentOrders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="fa fa-inbox"></i><p>No orders yet</p></td></tr>';
+            } else {
+                tbody.innerHTML = recentOrders.map(order => `
+                    <tr>
+                        <td>#${order.id}</td>
+                        <td>${order.customerName}</td>
+                        <td>₹${order.totalAmount}</td>
+                        <td><span style="background: #d4edda; color: #155724; padding: 5px 10px; border-radius: 5px; font-size: 0.85rem;">${order.status}</span></td>
+                        <td>${order.date}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // Load Products
+        function loadProducts() {
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const tbody = document.getElementById('productsBody');
+
+            if (products.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fa fa-cube"></i><p>No products found</p></td></tr>';
+            } else {
+                tbody.innerHTML = products.map(product => {
+                    // Support both old (product.image) and new (product.images[]) formats
+                    const primaryImage = (product.images && product.images.length > 0) ? product.images[0] : (product.image || null);
+                    const imageHtml = primaryImage ? `<img src="${primaryImage}" style="width: 40px; height: 40px; border-radius: 5px; object-fit: cover;" onerror="this.style.opacity=0.5">` : '<i class="fa fa-image" style="color: #ccc;"></i>';
+                    
+                    return `
+                        <tr>
+                            <td>${imageHtml}</td>
+                            <td>${product.name}</td>
+                            <td>${product.category}</td>
+                            <td>₹${product.price}</td>
+                            <td>${product.stock}</td>
+                            <td>
+                                <button class="btn-action btn-edit" onclick="editProduct('${product.id}')">Edit</button>
+                                <button class="btn-action btn-delete" onclick="deleteProduct('${product.id}')">Delete</button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        // Load Orders
+        function loadOrders() {
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const tbody = document.getElementById('ordersBody');
+
+            if (orders.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fa fa-shopping-cart"></i><p>No orders found</p></td></tr>';
+            } else {
+                tbody.innerHTML = orders.map(order => `
+                    <tr>
+                        <td>#${order.id}</td>
+                        <td>${order.customerName}</td>
+                        <td>${order.items ? order.items.length : 0} items</td>
+                        <td>₹${order.totalAmount}</td>
+                        <td><span style="background: #d4edda; color: #155724; padding: 5px 10px; border-radius: 5px; font-size: 0.85rem;">${order.status}</span></td>
+                        <td><button class="btn-action btn-edit" onclick="viewOrder(${order.id})">View</button></td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // Load Customers
+        function loadCustomers() {
+            const customers = JSON.parse(localStorage.getItem('customers')) || [];
+            const tbody = document.getElementById('customersBody');
+
+            if (customers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="fa fa-users"></i><p>No customers yet</p></td></tr>';
+            } else {
+                tbody.innerHTML = customers.map(customer => `
+                    <tr>
+                        <td>${customer.name}</td>
+                        <td>${customer.email}</td>
+                        <td>${customer.phone}</td>
+                        <td>${customer.orders || 0}</td>
+                        <td>₹${customer.totalSpent || 0}</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // Load Reports
+        function loadReports() {
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+
+            const monthlyRevenue = orders.reduce((sum, order) => sum + (order.totalAmount || 0), 0);
+            const monthlyOrders = orders.length;
+            const averageOrder = monthlyOrders > 0 ? Math.round(monthlyRevenue / monthlyOrders) : 0;
+
+            document.getElementById('monthlyRevenue').textContent = '₹' + monthlyRevenue.toLocaleString();
+            document.getElementById('monthlyOrders').textContent = monthlyOrders;
+            document.getElementById('averageOrder').textContent = '₹' + averageOrder.toLocaleString();
+            document.getElementById('topProduct').textContent = products.length > 0 ? products[0].name.substring(0, 15) : '-';
+        }
+
+        // Show Section
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Remove active class from all nav links
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Add active class to clicked link
+            event.target.closest('a').classList.add('active');
+
+            // Update page title
+            const titles = {
+                dashboard: 'Dashboard',
+                products: 'Products',
+                orders: 'Orders',
+                customers: 'Customers',
+                reports: 'Reports'
+            };
+            document.getElementById('pageTitle').textContent = titles[sectionId];
+        }
+
+        // Product Modal Functions
+        function openProductModal() {
+            document.getElementById('productId').value = '';
+            document.getElementById('productForm').reset();
+            // Clear uploaded images from previous session
+            sessionStorage.removeItem('uploadedImages');
+            document.getElementById('imageGallery').innerHTML = '';
+            document.getElementById('modalTitle').textContent = 'Add Product';
+            document.getElementById('productModal').classList.add('show');
+            console.log('Product modal opened - sessionStorage cleared');
+        }
+
+        function closeProductModal() {
+            document.getElementById('productModal').classList.remove('show');
+        }
+
+        function saveProduct(event) {
+            event.preventDefault();
+
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const id = document.getElementById('productId').value;
+
+            // Get images from sessionStorage (set by Cloudinary upload)
+            const uploadedImages = JSON.parse(sessionStorage.getItem('uploadedImages')) || [];
+
+            // Validate that at least one image is provided for new products
+            if (!id && uploadedImages.length === 0) {
+                alert('Please upload at least one image before saving the product.');
+                return;
+            }
+
+            const product = {
+                // Use string IDs. New products will get a Firebase-generated key when pushed.
+                id: id ? id : null,
+                name: document.getElementById('productName').value,
+                category: document.getElementById('productCategory').value,
+                price: parseInt(document.getElementById('productPrice').value),
+                stock: parseInt(document.getElementById('productStock').value),
+                description: document.getElementById('productDescription').value,
+                images: uploadedImages.length > 0 ? uploadedImages : []
+            };
+
+            // Keep existing images if no new images uploaded
+            if (id && uploadedImages.length === 0) {
+                const existingProduct = products.find(p => p.id === id);
+                if (existingProduct && existingProduct.images) {
+                    product.images = existingProduct.images;
+                }
+            }
+
+            // Log for debugging
+            console.log('Saving product with images:', product.images);
+            saveProductToStorage(product, id, products);
+        }
+
+        function saveProductToStorage(product, id, products) {
+            // If product has an ID, update existing entry; otherwise push a new key from Firebase
+            if (product.id) {
+                const index = products.findIndex(p => p.id === product.id);
+                if (index > -1) {
+                    products[index] = product;
+                } else {
+                    products.push(product);
+                }
+
+                // Update single product in Firebase
+                db.ref('products/' + product.id).set(product, (error) => {
+                    if (error) {
+                        console.log('Firebase save error:', error.message);
+                        alert('⚠️ Saved locally but Firebase sync failed. Check internet connection.');
+                    } else {
+                        console.log('✅ Product synced to Firebase:', product.id);
+                    }
+                });
+            } else {
+                // Create new product with Firebase-generated key
+                const newRef = db.ref('products').push();
+                product.id = newRef.key;
+                products.push(product);
+
+                // Save new product to Firebase
+                newRef.set(product, (error) => {
+                    if (error) {
+                        console.log('Firebase push error:', error.message);
+                        alert('⚠️ Saved locally but Firebase sync failed.');
+                    } else {
+                        console.log('✅ New product pushed to Firebase:', product.id);
+                    }
+                });
+            }
+
+            // Save to localStorage
+            localStorage.setItem('products', JSON.stringify(products));
+            
+            // Verify save
+            const verified = JSON.parse(localStorage.getItem('products'));
+            console.log('Product saved to localStorage. Total products:', verified.length);
+            console.log('Last saved product images count:', verified[verified.length - 1]?.images?.length || 0);
+            
+            closeProductModal();
+            loadProducts();
+            loadDashboardStats();
+            alert('Product saved successfully!\n\n✅ Uploaded ' + product.images.length + ' image(s)\n✅ Synced to Firebase\n\nProduct appears in gallery on ALL devices!');
+        }
+
+        function editProduct(id) {
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const product = products.find(p => p.id === id);
+
+            if (product) {
+                document.getElementById('productId').value = product.id;
+                document.getElementById('productName').value = product.name;
+                document.getElementById('productCategory').value = product.category;
+                document.getElementById('productPrice').value = product.price;
+                document.getElementById('productStock').value = product.stock;
+                document.getElementById('productDescription').value = product.description;
+                
+                // Load existing images to sessionStorage
+                if (product.images && product.images.length > 0) {
+                    sessionStorage.setItem('uploadedImages', JSON.stringify(product.images));
+                    console.log('Loaded existing images for edit:', product.images.length);
+                } else {
+                    sessionStorage.removeItem('uploadedImages');
+                }
+                
+                // Display existing images
+                displayImageGallery();
+                
+                document.getElementById('modalTitle').textContent = 'Edit Product';
+                document.getElementById('productModal').classList.add('show');
+            }
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                let products = JSON.parse(localStorage.getItem('products')) || [];
+                products = products.filter(p => p.id !== id);
+                localStorage.setItem('products', JSON.stringify(products));
+                
+                // Delete single product from Firebase
+                db.ref('products/' + id).remove((error) => {
+                    if (error) {
+                        console.log('Firebase delete error:', error.message);
+                        alert('⚠️ Deleted locally but failed to remove from Firebase.');
+                    } else {
+                        console.log('✅ Product deleted from Firebase:', id);
+                    }
+                });
+                
+                loadProducts();
+                loadDashboardStats();
+                alert('✅ Product deleted successfully!\n✅ Removed from all devices');
+            }
+        }
+
+        function viewOrder(id) {
+            const orders = JSON.parse(localStorage.getItem('orders')) || [];
+            const order = orders.find(o => o.id === id);
+            if (order) {
+                alert(`Order #${order.id}\nCustomer: ${order.customerName}\nAmount: ₹${order.totalAmount}\nStatus: ${order.status}`);
+            }
+        }
+
+        // Logout
+        function handleLogout() {
+            auth.signOut().then(() => {
+                localStorage.removeItem('currentAdmin');
+                window.location.href = 'admin-login.html';
+            });
+        }
+
+        // Image preview on file select
+        document.addEventListener('DOMContentLoaded', function() {
+            const imageInput = document.getElementById('productImages');
+            if (imageInput) {
+                imageInput.addEventListener('change', function(e) {
+                    const files = e.target.files;
+                    const gallery = document.getElementById('imageGallery');
+                    gallery.innerHTML = '';
+                    
+                    if (files && files.length > 0) {
+                        Array.from(files).forEach((file, idx) => {
+                            const reader = new FileReader();
+                            reader.onload = function(event) {
+                                const imgDiv = document.createElement('div');
+                                imgDiv.style.position = 'relative';
+                                imgDiv.style.width = '100px';
+                                imgDiv.style.height = '100px';
+                                imgDiv.innerHTML = `
+                                    <img src="${event.target.result}" style="width: 100%; height: 100%; border-radius: 5px; border: 1px solid #ddd; object-fit: cover;">
+                                `;
+                                gallery.appendChild(imgDiv);
+                            };
+                            reader.readAsDataURL(file);
+                        });
+                    }
+                });
+            }
+        });
+
+        function removeProductImage(idx) {
+            // This is a placeholder - actual removal logic would be in edit mode
+            alert('Image at index ' + idx + ' will be removed when you save');
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('productModal');
+            if (event.target === modal) {
+                closeProductModal();
+            }
+        }
+
+        // Cloudinary Upload Button Handler
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadBtn = document.getElementById('cloudinaryUploadBtn');
+            if (uploadBtn) {
+                uploadBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    cloudinaryWidget.open();
+                });
+            }
+
+            // Display existing images when editing
+            const imageGallery = document.getElementById('imageGallery');
+            if (imageGallery) {
+                displayImageGallery();
+            }
+        });
+
+        // Initialize on page load
+        window.addEventListener('load', checkAuth);
+    </script>
+</body>
+</html>

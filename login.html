@@ -9,6 +9,7 @@
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <style>
         /* Auth Page Specific Styles */
         .auth-container {
@@ -232,6 +233,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        const auth = firebase.auth();
 
         function switchTab(tab) {
             // Update tabs UI
@@ -254,28 +256,28 @@
             const password = document.getElementById('regPassword').value;
             const msg = document.getElementById('signupMsg');
 
-            // Check if user exists in Firebase
-            db.ref('users').orderByChild('email').equalTo(email).once('value', (snapshot) => {
-                if (snapshot.exists()) {
-                    msg.textContent = 'Email already registered!';
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // User created, now save details to Database
+                    const user = userCredential.user;
+                    return db.ref('users/' + user.uid).set({
+                        name: name,
+                        email: email,
+                        phone: phone
+                    });
+                })
+                .then(() => {
+                    msg.textContent = 'Account created successfully! Please login.';
+                    msg.className = 'message success';
+                    msg.style.display = 'block';
+                    document.getElementById('signupForm').reset();
+                    setTimeout(() => { document.querySelectorAll('.auth-tab')[0].click(); }, 1500);
+                })
+                .catch((error) => {
+                    msg.textContent = error.message;
                     msg.className = 'message error';
                     msg.style.display = 'block';
-                } else {
-                    // Create new user in Firebase
-                    const newUserRef = db.ref('users').push();
-                    newUserRef.set({ name, email, phone, password }, (error) => {
-                        if (!error) {
-                            msg.textContent = 'Account created successfully! Please login.';
-                            msg.className = 'message success';
-                            msg.style.display = 'block';
-                            document.getElementById('signupForm').reset();
-                            setTimeout(() => {
-                                document.querySelectorAll('.auth-tab')[0].click();
-                            }, 1500);
-                        }
-                    });
-                }
-            });
+                });
         }
 
         function handleLogin(e) {
@@ -284,27 +286,26 @@
             const password = document.getElementById('loginPassword').value;
             const msg = document.getElementById('loginMsg');
 
-            // Check user in Firebase
-            db.ref('users').orderByChild('email').equalTo(email).once('value', (snapshot) => {
-                let userFound = false;
-                snapshot.forEach((childSnapshot) => {
-                    const user = childSnapshot.val();
-                    if (user.password === password) {
-                        userFound = true;
-                        localStorage.setItem('currentUser', JSON.stringify(user));
-                        msg.textContent = 'Login successful! Redirecting...';
-                        msg.className = 'message success';
-                        msg.style.display = 'block';
-                        setTimeout(() => { window.location.href = 'index.html'; }, 1000);
-                    }
-                });
-
-                if (!userFound) {
+            auth.signInWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // Fetch user details to store in localStorage for display
+                    const userId = userCredential.user.uid;
+                    return db.ref('users/' + userId).once('value');
+                })
+                .then((snapshot) => {
+                    const userData = snapshot.val();
+                    localStorage.setItem('currentUser', JSON.stringify(userData));
+                    
+                    msg.textContent = 'Login successful! Redirecting...';
+                    msg.className = 'message success';
+                    msg.style.display = 'block';
+                    setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+                })
+                .catch((error) => {
                     msg.textContent = 'Invalid email or password.';
                     msg.className = 'message error';
                     msg.style.display = 'block';
-                }
-            });
+                });
         }
 
         function toggleMobileNav() {
