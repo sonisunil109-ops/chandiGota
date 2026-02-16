@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Lj Silver Jewellery</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -210,39 +213,18 @@
     </div>
 
     <script>
-        // Initialize admin credentials in localStorage
-        function initializeAdmin() {
-            if (!localStorage.getItem('adminUsers')) {
-                const adminUsers = {
-                    'admin': 'admin123', // username: password
-                    'sunil': 'sunil@123'
-                };
-                localStorage.setItem('adminUsers', JSON.stringify(adminUsers));
-            }
-
-            // Initialize products storage
-            if (!localStorage.getItem('products')) {
-                const defaultProducts = [
-                    { id: 1, name: 'Classic Silver Ring', category: 'rings', price: 1499, stock: 15, description: 'Beautiful sterling silver ring' },
-                    { id: 2, name: 'Infinity Silver Chain', category: 'necklace', price: 3200, stock: 8, description: 'Premium silver chain necklace' },
-                    { id: 3, name: 'Sterling Silver Bracelet', category: 'bracelets', price: 2100, stock: 12, description: 'Classic silver bracelet' }
-                ];
-                localStorage.setItem('products', JSON.stringify(defaultProducts));
-            }
-
-            // Initialize orders storage
-            if (!localStorage.getItem('orders')) {
-                localStorage.setItem('orders', JSON.stringify([]));
-            }
-
-            // Initialize customers storage
-            if (!localStorage.getItem('customers')) {
-                localStorage.setItem('customers', JSON.stringify([]));
-            }
-        }
-
-        // Initialize on page load
-        initializeAdmin();
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBdUeX8etc9aNhsr1uHwdfbsgutcR1Yaec",
+            authDomain: "ljsilverj.firebaseapp.com",
+            projectId: "ljsilverj",
+            storageBucket: "ljsilverj.firebasestorage.app",
+            messagingSenderId: "21343936386",
+            appId: "1:21343936386:web:ba870e9787704c01bff99b",
+            databaseURL: "https://ljsilverj-default-rtdb.firebaseio.com"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
         function handleLogin(event) {
             event.preventDefault();
@@ -252,32 +234,47 @@
             const errorMsg = document.getElementById('errorMsg');
             const successMsg = document.getElementById('successMsg');
 
-            // Get admin users from localStorage
-            const adminUsers = JSON.parse(localStorage.getItem('adminUsers'));
+            // Check credentials against Firebase
+            db.ref('admins').once('value', (snapshot) => {
+                let isAuthenticated = false;
 
-            // Validate credentials
-            if (adminUsers[username] && adminUsers[username] === password) {
-                // Success
-                successMsg.textContent = 'Login successful! Redirecting...';
-                successMsg.style.display = 'block';
-                errorMsg.style.display = 'none';
+                if (snapshot.exists()) {
+                    snapshot.forEach((child) => {
+                        const admin = child.val();
+                        if (admin.username === username && admin.password === password) {
+                            isAuthenticated = true;
+                        }
+                    });
+                } else {
+                    // Fallback: If no admins exist in DB, allow default and create it
+                    if (username === 'admin' && password === 'admin123') {
+                        isAuthenticated = true;
+                        // Seed the first admin to Firebase
+                        db.ref('admins').push({ username: 'admin', password: 'admin123' });
+                    }
+                }
 
-                // Store login info in localStorage
-                localStorage.setItem('isAdminLoggedIn', 'true');
-                localStorage.setItem('currentAdmin', username);
+                if (isAuthenticated) {
+                    // Success
+                    successMsg.textContent = 'Login successful! Redirecting...';
+                    successMsg.style.display = 'block';
+                    errorMsg.style.display = 'none';
 
-                // Redirect to admin dashboard in new tab
-                setTimeout(() => {
-                    window.open('admin.html', '_blank');
-                    window.location.href = 'index.html';
-                }, 1500);
-            } else {
-                // Error
-                errorMsg.textContent = 'Invalid username or password. Please try again.';
-                errorMsg.style.display = 'block';
-                successMsg.style.display = 'none';
-                document.getElementById('password').value = '';
-            }
+                    // Store login info in localStorage for session management
+                    localStorage.setItem('isAdminLoggedIn', 'true');
+                    localStorage.setItem('currentAdmin', username);
+
+                    setTimeout(() => {
+                        window.location.href = 'admin.html';
+                    }, 1500);
+                } else {
+                    // Error
+                    errorMsg.textContent = 'Invalid username or password.';
+                    errorMsg.style.display = 'block';
+                    successMsg.style.display = 'none';
+                    document.getElementById('password').value = '';
+                }
+            });
         }
 
         // Check if already logged in
