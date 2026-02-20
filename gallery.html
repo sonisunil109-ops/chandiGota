@@ -353,6 +353,7 @@
             .filter-btn { padding: 8px 15px; font-size: 0.9rem; }
             .product-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
         }
+        
     </style>
 </head>
 <body>
@@ -363,7 +364,7 @@
             <span></span>
             <span></span>
         </div>
-        <div class="logo">LJ Silver</div>
+        <div class="logo"><img src="gotachandi.png" alt="" srcset=""></div>
         <nav>
             <ul>
                 <li><a href="index.html">Home</a></li>
@@ -563,9 +564,6 @@
                         <div class="zoom-icon"><i class="fa fa-search-plus"></i></div>
                         ${hasMultipleImages ? `<div class="image-count"><i class="fa fa-images"></i> ${imageCount}</div>` : ''}
                     </div>
-                    <div class="cart-icon-corner" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}" title="Add to cart">
-                        <i class="fa fa-shopping-cart"></i>
-                    </div>
                     <div class="product-info">
                         <div class="product-name">${product.name}</div>
                         <div class="product-category">${product.category}</div>
@@ -600,12 +598,6 @@
                         // Fallback for single image or emoji
                         openZoom(productImg.dataset.image, productImg.dataset.emoji);
                     }
-                    return;
-                }
-
-                const cartBtn = e.target.closest('.cart-icon-corner');
-                if (cartBtn) {
-                    addToCart(cartBtn.dataset.id, cartBtn.dataset.name, parseInt(cartBtn.dataset.price));
                     return;
                 }
 
